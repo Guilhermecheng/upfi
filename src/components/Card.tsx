@@ -17,11 +17,13 @@ interface Card {
 
 interface CardProps {
   data: Card;
-  viewImage: (url: string) => void;
+  // viewImage: (url: string) => void;
 }
 
-export function Card({ data, viewImage }: CardProps): JSX.Element {
+export function Card({ data,  }: CardProps): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
+
+  console.log(data)
 
   return (
     <Box key={data.ts} borderRadius="md" bgColor="pGray.800">
@@ -33,7 +35,7 @@ export function Card({ data, viewImage }: CardProps): JSX.Element {
           w="max"
           h={48}
           borderTopRadius="md"
-          onClick={() => viewImage(data.url)}
+          // onClick={() => viewImage(data.url)}
           onLoad={() => setIsLoading(false)}
           cursor="pointer"
         />
