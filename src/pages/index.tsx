@@ -9,6 +9,18 @@ import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
 import { postAPI } from './api/try';
 
+interface Card {
+  title: string;
+  description: string;
+  url: string;
+  ts: number;
+}
+
+type Page = {
+  data: Card;
+  after: string | null;
+}
+
 export default function Home(): JSX.Element {
   const {
     data,
@@ -19,7 +31,7 @@ export default function Home(): JSX.Element {
     hasNextPage,
   } = useInfiniteQuery(
     ['images'],
-    // TODO AXIOS REQUEST WITH PARAM
+    // request with axios
     async ({ pageParam = 1 }) => {
       try {
         const { data, status } = await api.get('images');
@@ -34,7 +46,7 @@ export default function Home(): JSX.Element {
       }
     }
     ,
-    // TODO GET AND RETURN NEXT PAGE PARAM
+    // return next page param
     {
       getNextPageParam: (lastPage , allPages) => {
         console.log(lastPage.data)
@@ -44,7 +56,7 @@ export default function Home(): JSX.Element {
   );
 
   const formattedData = useMemo(() => {
-    // TODO FORMAT AND FLAT DATA ARRAY
+    // return a flatten array to be used in card's list
     if(data) {
       let formattedPages = [];
       data.pages.forEach((page) => {
@@ -67,9 +79,22 @@ export default function Home(): JSX.Element {
     }
   }, [data]);
 
-  // TODO RENDER LOADING SCREEN
+  // get nextPage if exists or null
+  let pageAfter = undefined;
+  if(data) {
+    let pagesFlat = data.pages.flat();
+    pageAfter = pagesFlat[0].data.after;
+  }
 
-  // TODO RENDER ERROR SCREEN
+  // render Loading screen while fetching
+  if(isLoading) {
+    return <Loading />
+  }  
+
+  // render error screen if error
+  if(isError) {
+    return <Error />
+  }
 
   return (
     <>
@@ -78,11 +103,15 @@ export default function Home(): JSX.Element {
       <Box maxW={1120} px={20} mx="auto" my={20}>        
         <CardList cards={formattedData} />
         {/* TODO RENDER LOAD MORE BUTTON IF DATA HAS NEXT PAGE */}
-        <Button onClick={() => postAPI()} my="8">oi</Button>
+        {/* <Button onClick={() => postAPI()} my="8">oi</Button> */}
 
-        <Box>
-          <Button>Carregar mais</Button>
-        </Box>
+        { pageAfter && (
+          <Box
+
+          >
+            <Button>Carregar mais</Button>
+          </Box>
+        ) }
       </Box>
     </>
   );
