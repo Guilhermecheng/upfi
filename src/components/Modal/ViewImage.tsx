@@ -8,9 +8,10 @@ import {
   Link,
   ModalHeader,
   Button,
-  Box
+  Box,
+  outline
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface ModalViewImageProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export function ModalViewImage({
 }: ModalViewImageProps): JSX.Element {
   // TODO MODAL WITH IMAGE AND EXTERNAL LINK
   const [imgWidth, setImgWidth] = useState(0);
+  const initialRef = useRef();
 
   const imgg = new Image();
   imgg.src = imgUrl;
@@ -38,11 +40,12 @@ export function ModalViewImage({
       isOpen={isOpen}
       onClose={onClose}
       isCentered
+      initialFocusRef={initialRef} // focusing on close button
       // size="lg"
     >
       <ModalOverlay />
         
-        <ModalContent        
+        <ModalContent
           w={imgWidth}
           maxHeight="600px"
           maxWidth="900px"
@@ -70,16 +73,20 @@ export function ModalViewImage({
           </ModalBody>
           
           <ModalFooter
-            background="red"
+            background="pGray.900"
             w="100%"
             borderRadius="0 0 4px 4px"
             justifyContent="space-between"
+            color="pGray.50"
+            m="0"
+            py="4"
+            px="4"
           >
-            <Link href={imgUrl}>
-              <Box as="a">Abrir original</Box>
+            <Link href={imgUrl} _hover={{ textDecoration: "none" }} isExternal>
+              <Box as="a" >Abrir original</Box>
             </Link>
 
-            <Button onClick={onClose}>X</Button>
+            <Button onClick={onClose} h="8" w="8" ref={initialRef} _focus={{ outline: "none" }}>X</Button>
           </ModalFooter>
 
         </ModalContent>
