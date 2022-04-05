@@ -1,5 +1,5 @@
 import { Button, Box } from '@chakra-ui/react';
-import { useMemo } from 'react';
+import { FormEvent, useMemo } from 'react';
 import { useInfiniteQuery } from 'react-query';
 
 import { Header } from '../components/Header';
@@ -7,7 +7,6 @@ import { CardList } from '../components/CardList';
 import { api } from '../services/api';
 import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
-import { postAPI } from './api/try';
 
 interface Card {
   title: string;
@@ -21,7 +20,7 @@ type Page = {
   after: string | null;
 }
 
-export default function Home(): JSX.Element {
+export default function Home(): JSX.Element {  
   const {
     data,
     isLoading,
@@ -32,9 +31,9 @@ export default function Home(): JSX.Element {
   } = useInfiniteQuery(
     ['images'],
     // request with axios
-    async ({ pageParam = 1 }) => {
+    async ({ pageParam = null }) => {
       try {
-        const { data, status } = await api.get('images');
+        const { data, status } = await api.get('images', {params: { after: pageParam }});
         console.log(status)
 
         return {
@@ -79,13 +78,6 @@ export default function Home(): JSX.Element {
     }
   }, [data]);
 
-  // get nextPage if exists or null
-  let pageAfter = undefined;
-  if(data) {
-    let pagesFlat = data.pages.flat();
-    pageAfter = pagesFlat[0].data.after;
-  }
-
   // render Loading screen while fetching
   if(isLoading) {
     return <Loading />
@@ -102,16 +94,23 @@ export default function Home(): JSX.Element {
 
       <Box maxW={1120} px={20} mx="auto" my={20}>        
         <CardList cards={formattedData} />
-        {/* TODO RENDER LOAD MORE BUTTON IF DATA HAS NEXT PAGE */}
-        {/* <Button onClick={() => postAPI()} my="8">oi</Button> */}
 
-        { pageAfter && (
-          <Box
-
-          >
-            <Button>Carregar mais</Button>
-          </Box>
-        ) }
+        {isFetchingNextPage
+          ? 'Loading more...'
+          : hasNextPage
+          ? (
+            <Box
+              mt="10"
+            >
+              <Button onClick={(e: FormEvent) => {
+                e.preventDefault()
+                fetchNextPage()
+              }}>
+                Carregar mais
+              </Button>
+            </Box>
+          ) : ""
+        }
       </Box>
     </>
   );
