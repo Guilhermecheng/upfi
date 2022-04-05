@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { api } from '../../services/api';
 import { FileInput } from '../Input/FileInput';
 import { TextInput } from '../Input/TextInput';
+import { stat } from 'fs';
 
 interface FormAddImageProps {
   closeModal: () => void;
@@ -21,8 +22,21 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       // TODO REQUIRED, LESS THAN 10 MB AND ACCEPTED FORMATS VALIDATIONS
       required: "Arquivo obrigatório",
       validate: {
-        lessThan10MB: () => { return true },
-        acceptedFormats: ""
+        lessThan10MB: async (file: File) => {
+          console.log(file[0].size)
+          if(file[0].size < 10000 * 1024) {
+            return true
+          } else {
+            return 'O arquivo deve ser menor que 10MB' 
+          }
+        },
+        acceptedFormats: (file: File) => {
+          const type = file[0].type;
+          const [fileType, fileFormat] = type.split('/');
+          const regex = /\.(gif|jpe?g|png)$/i;
+          if (fileType !== 'image') return false;
+          return regex.test(fileFormat);
+        },
       }
     },
     title: {
@@ -86,20 +100,21 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           setLocalImageUrl={setLocalImageUrl}
           setError={setError}
           trigger={trigger}
-          // TODO SEND IMAGE ERRORS
-          // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
+          error={ errors?.image && errors.image }
+          {...register("image", formValidations.image)}
+
         />
 
         <TextInput
           placeholder="Título da imagem..."
-          // TODO SEND TITLE ERRORS
-          // TODO REGISTER TITLE INPUT WITH VALIDATIONS
+          error={ errors?.title && errors.title }
+          {...register("title", formValidations.title)}
         />
 
         <TextInput
           placeholder="Descrição da imagem..."
-          // TODO SEND DESCRIPTION ERRORS
-          // TODO REGISTER DESCRIPTION INPUT WITH VALIDATIONS
+          error={ errors?.description && errors.description }
+          {...register("description", formValidations.description)}
         />
       </Stack>
 
