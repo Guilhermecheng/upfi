@@ -6,12 +6,9 @@ import {
   ModalBody,
   Image as ChakraImage,
   Link,
-  ModalHeader,
   Button,
-  Box,
-  outline
 } from '@chakra-ui/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface ModalViewImageProps {
   isOpen: boolean;
@@ -25,34 +22,32 @@ export function ModalViewImage({
   imgUrl,
 }: ModalViewImageProps): JSX.Element {
   // TODO MODAL WITH IMAGE AND EXTERNAL LINK
-  const [imgWidth, setImgWidth] = useState(0);
+  const [imgWidth, setImgWidth] = useState(600);
+
   const initialRef = useRef();
-
-  const imgg = new Image();
-  imgg.src = imgUrl;
-
-  imgg.onload = () => {
-    setImgWidth(imgg.width);
-  }
+  const widthRef = useRef<HTMLImageElement>();
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={() => {
+        onClose();
+        setImgWidth(600)
+      }}
       isCentered
       initialFocusRef={initialRef} // focusing on close button
-      // size="lg"
     >
       <ModalOverlay />
         
         <ModalContent
-          w={imgWidth}
           maxHeight="600px"
           maxWidth="900px"
+          w={imgWidth}
           m="0"
           p="0"
           alignItems="center"
           justifyContent="center"
+          background="transparent"
         >
           <ModalBody
             background="pGray.900"
@@ -60,6 +55,10 @@ export function ModalViewImage({
             m="0"
             p="0"
             borderRadius="10px 10px 0 0"
+            onLoad={({ target: divv }) => {
+              const { clientWidth } = divv as HTMLDivElement;
+              setImgWidth(clientWidth)
+            }}
           >
             <ChakraImage 
               src={imgUrl} 
@@ -68,7 +67,8 @@ export function ModalViewImage({
               maxWidth="900px"
               m="0"
               p="0"
-              borderRadius="4px 4px 0 0"
+              borderRadius="4px 4px 0 0"              
+              ref={widthRef}
             />
           </ModalBody>
           
@@ -83,7 +83,7 @@ export function ModalViewImage({
             px="4"
           >
             <Link href={imgUrl} _hover={{ textDecoration: "none" }} isExternal>
-              <Box as="a" >Abrir original</Box>
+              Abrir original
             </Link>
 
             <Button onClick={onClose} h="8" w="8" ref={initialRef} _focus={{ outline: "none" }}>X</Button>

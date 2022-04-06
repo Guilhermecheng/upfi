@@ -32,23 +32,16 @@ export default function Home(): JSX.Element {
     ['images'],
     // request with axios
     async ({ pageParam = null }) => {
-      try {
         const { data, status } = await api.get('images', {params: { after: pageParam }});
-        console.log(status)
 
         return {
           data
         };
-        
-      } catch(err) {
-        console.log(err)
-      }
     }
     ,
     // return next page param
     {
       getNextPageParam: (lastPage , allPages) => {
-        console.log(lastPage.data)
         return lastPage.data.after;
       }
     },
@@ -96,7 +89,7 @@ export default function Home(): JSX.Element {
         <CardList cards={formattedData} />
 
         {isFetchingNextPage
-          ? 'Loading more...'
+          ? <Box  mt="10">Loading more...</Box>
           : hasNextPage
           ? (
             <Box
